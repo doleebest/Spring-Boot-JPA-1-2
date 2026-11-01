@@ -3,6 +3,7 @@ package jpabook.jpashop.api;
 import jakarta.validation.Valid;
 import jpabook.jpashop.domain.Member;
 import jpabook.jpashop.service.MemberService;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -21,16 +22,22 @@ public class MemberApiController {
         return new CreateMemberResponse(id);
     }
 
+    @PostMapping("/api/v2/members")
+    public CreateMemberResponse saveMemberV2(@RequestBody @Valid CreateMemberRequest request){
+        Member member = new Member();
+        member.setName(request.getName());
+        Long id = memberService.join(member);
+        return new CreateMemberResponse(id);
+    }
+
     @Data
     static class CreateMemberRequest {
         private String name;
     }
 
-   @Data
-    static class CreateMemberResponse{
+    @Data
+    @AllArgsConstructor
+    static class CreateMemberResponse {
         private Long id;
-        public CreateMemberResponse(Long id){
-            this.id = id;
-        }
-   }
+    }
 }
