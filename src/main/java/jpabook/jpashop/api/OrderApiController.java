@@ -33,7 +33,7 @@ public class OrderApiController {
     }
 
     @GetMapping("/api/v2/orders")
-    public List<OrderDto> ordersV2() {
+    public List<OrderDto> ordersV2() { // 성능이 매우 좋지 않음. 쿼리가 매우 많이 send
         List<Order> orders = orderRepository.findAll(new OrderSearch());
         List<OrderDto> collect = orders.stream().map(o -> new OrderDto(o))
                 .collect(Collectors.toList());
@@ -49,7 +49,7 @@ public class OrderApiController {
         private LocalDateTime orderDate;
         private OrderStatus orderStatus;
         private Address address;
-        private List<OrderItem> orderItems;
+        private List<OrderItemDto> orderItems;
 
         public OrderDto(Order order) {
             orderId = order.getId();
@@ -57,14 +57,22 @@ public class OrderApiController {
             orderDate = order.getOrderDate();
             orderStatus = order.getStatus();
             address = order.getDelivery().getAddress();
-            order.getOrderItems().stream().forEach(o->o.getItem().getName()); // entity 여전히 노출됨. order items 조차도 다 dto로
-            orderItems = order.getOrderItems();
+            orderItems = order.getOrderItems().stream()
+                    .map(orderItem -> new OrderItemDto(orderItem))
+                    .collect(Collectors.toList());
         }
     }
 
     @Getter
     static class OrderItemDto{
-
+        private String itemName;
+        private  int orderPrice;
+        private  int count;
+        public OrderItemDto(OrderItem orderItem){
+            itemName = orderItem.getItem().getName();
+            orderPrice = orderItem.getOrderPrice();
+            count = orderItem.getCount();
+        }
     }
 }
 
